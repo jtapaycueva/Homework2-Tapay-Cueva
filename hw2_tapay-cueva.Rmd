@@ -1,0 +1,136 @@
+---
+title: "HW2_Tapay-Cueva"
+author: "Jack Tapay-Cueva"
+date: "2024-02-20"
+output: html_document
+---
+
+## **Problem 1a**
+
+```{r}
+library(tidyverse)
+tribble( ~x, ~y, ~w, ~z,
+210, 300, 220, 180,
+102, 100, 119, 187,
+176, 175, 188, 173,
+87, 95, 91, 94,
+202, 210, 234, 218,
+110, 122, 131, 128,
+) -> dt
+sapply(dt, mean)
+```
+
+## **Problem 1b**
+
+```{r}
+sapply(dt, sd)
+```
+
+## **Problem 1c**
+
+```{r}
+dt_sqrt <- dt %>% mutate(across(everything(), sqrt))
+dt_sqrt
+```
+
+## **Problem 1d**
+
+```{r}
+summary_stats <- sapply(dt, function(column) {
+  c(Mean = mean(column),
+    Max = max(column),
+    `1st Quartile` = quantile(column, 0.25),
+    `3rd Quartile` = quantile(column, 0.75),
+    Median = median(column),
+    Min = min(column))
+})
+summary_stats
+```
+
+## **Problem 2a**
+
+```{r}
+library(ggplot2)
+draw_means_for_loop <- function(n, size, rate) {
+  means <- numeric(n)
+  for (i in 1:n) {
+    observations <- rexp(size, rate)
+    means[i] <- mean(observations)
+  }
+  return(means)
+}
+
+means_for_loop <- draw_means_for_loop(10000, 5, 1)
+
+ggplot(data.frame(Means = means_for_loop), aes(x = Means)) +
+  geom_histogram(binwidth = 0.1, fill = "blue", color = "black") +
+  ggtitle("Distribution of Means (For Loop)") +
+  xlab("Mean") +
+  ylab("Frequency")
+
+
+library(purrr)
+library(ggplot2)
+
+draw_means_map <- function(n, size, rate) {
+  map_dbl(1:n, ~mean(rexp(size, rate)))
+}
+
+means_map <- draw_means_map(10000, 5, 1)
+
+ggplot(data.frame(Means = means_map), aes(x = Means)) +
+  geom_histogram(binwidth = 0.1, fill = "green", color = "black") +
+  ggtitle("Distribution of Means (Map Function)") +
+  xlab("Mean") +
+  ylab("Frequency")
+```
+
+## **Problem 2b**
+
+```{r}
+library(ggplot2)
+
+means_replicate <- replicate(10000, mean(rexp(5, 1)))
+
+ggplot(data.frame(Means = means_replicate), aes(x = Means)) +
+  geom_histogram(binwidth = 0.1, fill = "red", color = "black") +
+  ggtitle("Distribution of Means (Replicate Function)") +
+  xlab("Mean") +
+  ylab("Frequency")
+```
+
+## **Problem 2c**
+
+```{r}
+library(ggplot2)
+plot_sample_means <- function(sample_sizes, num_repeats, rate) {
+  for (size in sample_sizes) {
+    means <- replicate(num_repeats, mean(rexp(size, rate)))
+    plot <- ggplot(data.frame(Means = means), aes(x = Means)) +
+      geom_histogram(binwidth = 0.1, fill = "blue", color = "black") +
+      ggtitle(paste("Distribution of Means for Sample Size", size)) +
+      xlab("Mean") +
+      ylab("Frequency")
+    
+    print(plot)
+  }
+}
+
+sample_sizes <- c(5, 10, 20)
+plot_sample_means(sample_sizes, 10000, 1)
+
+```
+
+## **Problem 3**
+
+```{r}
+data("mtcars")
+std_devs <- numeric(ncol(mtcars))
+names(std_devs) <- names(mtcars)
+
+for (i in 1:ncol(mtcars)) {
+  std_devs[i] <- sd(mtcars[[i]])
+}
+
+print(std_devs)
+```
